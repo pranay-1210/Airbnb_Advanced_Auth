@@ -1,0 +1,66 @@
+<%- include('../partials/head') %>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+<%- include('../partials/nav') %>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6"><%= editing ? "Edit" : "Add" %> Your Home</h1>
+            <form action="/host/<%= editing ? "edit-home" : "add-home"%>" method="POST" class="space-y-4">
+                <input type="hidden" name="id" value="<%= editing ? home._id : ''%>" />
+                <input 
+                    type="text" 
+                    name="houseName" 
+                    value="<%= editing ? home.houseName : ''%>"
+                    placeholder="Name of your house"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+                <input 
+                    type="text" 
+                    name="price" 
+                    value="<%= editing ? home.price : ''%>"
+                    placeholder="Price of your house"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+                <input 
+                    type="text" 
+                    name="location" 
+                    value="<%= editing ? home.location : ''%>"
+                    placeholder="Location of your house"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+                <input 
+                    type="text" 
+                    name="rating" 
+                    value="<%= editing ? home.rating : ''%>"
+                    placeholder="Rating of your house"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+                <input 
+                    type="text" 
+                    name="photoUrl" 
+                    value="<%= editing ? home.photoUrl : ''%>"
+                    placeholder="Upload photo of your house"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+                <textarea 
+                    name="description" 
+                    value="<%= editing ? home.description : ''%>"
+                    placeholder="Describe your house"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                ></textarea>
+                <button 
+                    type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200"><%= editing ? "Update" : "Add" %> Home</button>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>
