@@ -5,7 +5,7 @@ exports.getAddHome = (req, res) => {
     editing: false,
     pageTitle: "Host Your Home",
     isLoggedIn: req.session.isLoggedIn,
-    user: req.session.user
+    user: req.session.user,
   });
 };
 
@@ -18,7 +18,7 @@ exports.getEditHome = (req, res) => {
     return res.redirect("/host/host-homes");
   }
 
-  Home.findById(homeId).then(home=> {
+  Home.findById(homeId).then((home) => {
     if (!home) {
       console.log("Home not found for editing");
       return res.redirect("/host/host-homes");
@@ -29,7 +29,7 @@ exports.getEditHome = (req, res) => {
       editing: editing,
       pageTitle: "Edit your Home",
       isLoggedIn: req.session.isLoggedIn,
-      user: req.session.user
+      user: req.session.user,
     });
   });
 };
@@ -37,53 +37,65 @@ exports.getEditHome = (req, res) => {
 exports.postAddHome = (req, res, next) => {
   // console.log(req.body);
   const { houseName, price, location, rating, description } = req.body;
-  console.log('Request Body: ',req.body);
-  console.log('House Photo: ',req.file);
+  console.log("Request Body: ", req.body);
+  console.log("House Photo: ", req.file);
 
-  if(!req.file) {
-    return res.status(400).send('No valid image provided');  
+  if (!req.file) {
+    return res.status(400).send("No valid image provided");
   }
 
   const photoUrl = "/" + req.file.path;
 
-
-
-
-  const newHome = new Home({houseName, price, location, rating, photoUrl, description, host: req.session.user._id});
+  const newHome = new Home({
+    houseName,
+    price,
+    location,
+    rating,
+    photoUrl,
+    description,
+    host: req.session.user._id,
+  });
 
   newHome.save().then(() => {
-      res.redirect("/host/host-homes");
+    res.redirect("/host/host-homes");
   });
 };
 
 exports.getHostHomes = (req, res, next) => {
-  Home.find({host: req.session.user._id}).then(registeredHomes => {
+  Home.find({ host: req.session.user._id }).then((registeredHomes) => {
     res.render("host/host-homes", {
       homes: registeredHomes,
       pageTitle: "Host Homes",
-      isLoggedIn: req.session.isLoggedIn ,
-      user: req.session.user
+      isLoggedIn: req.session.isLoggedIn,
+      user: req.session.user,
     });
   });
 };
 
 exports.postEditHome = (req, res, next) => {
-  const { id, houseName, price, location, rating, photoUrl, description  } = req.body;
-  Home.findById(id).then(existingHome => {
-    if(!existingHome){
-      console.log('Home not found for editing');
-      res.redirect("/host/host-homes");
-    }
-    existingHome.houseName = houseName;
-    existingHome.price = price;
-    existingHome.location = location;
-    existingHome.rating = rating;
-    existingHome.photoUrl = photoUrl;
-    existingHome.description = description;
-    return existingHome.save();
-  }).finally(() => {
-    return res.redirect("/host/host-homes");
-  });
+  const { id, houseName, price, location, rating, description } = req.body;
+
+  console.log("Request Body: ", req.body);
+  console.log("House Photo: ", req.file);
+  Home.findById(id)
+    .then((existingHome) => {
+      if (!existingHome) {
+        console.log("Home not found for editing");
+        res.redirect("/host/host-homes");
+      }
+      existingHome.houseName = houseName;
+      existingHome.price = price;
+      existingHome.location = location;
+      existingHome.rating = rating;
+      if (req.file) {
+        existingHome.photoUrl = "/" + req.file.path;
+      }
+      existingHome.description = description;
+      return existingHome.save();
+    })
+    .finally(() => {
+      return res.redirect("/host/host-homes");
+    });
 };
 
 exports.postDeleteHome = (req, res, next) => {
@@ -91,7 +103,5 @@ exports.postDeleteHome = (req, res, next) => {
   console.log("Came to delete ", homeId);
   Home.findByIdAndDelete(homeId).then(() => {
     res.redirect("/host/host-homes");
-});
+  });
 };
-
-  
