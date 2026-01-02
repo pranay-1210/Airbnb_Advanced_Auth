@@ -37,7 +37,7 @@ exports.getEditHome = (req, res) => {
 exports.postAddHome = (req, res, next) => {
   // console.log(req.body);
   const { houseName, price, location, rating, photoUrl, description } = req.body;
-  const newHome = new Home({houseName, price, location, rating, photoUrl, description});
+  const newHome = new Home({houseName, price, location, rating, photoUrl, description, host: req.session.user._id});
 
   newHome.save().then(() => {
       res.redirect("/host/host-homes");
@@ -45,7 +45,7 @@ exports.postAddHome = (req, res, next) => {
 };
 
 exports.getHostHomes = (req, res, next) => {
-  Home.find().then(registeredHomes => {
+  Home.find({host: req.session.user._id}).then(registeredHomes => {
     res.render("host/host-homes", {
       homes: registeredHomes,
       pageTitle: "Host Homes",

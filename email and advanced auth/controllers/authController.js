@@ -7,6 +7,8 @@ const  User  = require("../models/User");
 const bcrypt = require("bcryptjs");
 const sendGrid = require("@sendgrid/mail");
 
+const MILLIS_IN_MINUTE = 60 * 1000;
+
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -29,7 +31,23 @@ exports.postForgotPassword = async (req, res, next) => {
   console.log(email);
   try {
     const user = await User.findOne({ email });
-    console.log(user);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 5 * MILLIS_IN_MINUTE;
+    await user.save();
+
+    const forgotEmail = {
+      to: email,
+      from: "praveenpranay07@gmail.com",
+      subject: "Here is your OTP to reset your password",
+      html: `<h1>OTP is: ${otp}</h1>
+      <p>Enter this OTP on the reset password page</p>
+      `
+    };
+
+    await sendGrid.send(forgotEmail);
+
+
     res.redirect(`/reset-password?email=${email}`);
   }
   catch (err) {
