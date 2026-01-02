@@ -36,9 +36,19 @@ exports.getEditHome = (req, res) => {
 
 exports.postAddHome = (req, res, next) => {
   // console.log(req.body);
-  const { houseName, price, location, rating, photoUrl, description } = req.body;
+  const { houseName, price, location, rating, description } = req.body;
   console.log('Request Body: ',req.body);
   console.log('House Photo: ',req.file);
+
+  if(!req.file) {
+    return res.status(400).send('No valid image provided');  
+  }
+
+  const photoUrl = req.file.path;
+
+
+
+
   const newHome = new Home({houseName, price, location, rating, photoUrl, description, host: req.session.user._id});
 
   newHome.save().then(() => {
