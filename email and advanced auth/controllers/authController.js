@@ -1,14 +1,12 @@
 require("dotenv").config();
 
-
-
-const { check, validationResult } = require("express-validator");
-const  User  = require("../models/User");
+const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const sendGrid = require("@sendgrid/mail");
+const { firstNameValidation, lastNameValidation, emailValidation, passwordValidation, confirmPasswordValidation, termsValidation ,userTypeValidation} = require("./validation");
+
 
 const MILLIS_IN_MINUTE = 60 * 1000;
-
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -27,7 +25,7 @@ exports.getForgotPassword = (req, res, next) => {
 };
 
 exports.getResetPassword = (req, res, next) => {
-  const {email} = req.query;
+  const { email } = req.query;
   res.render("auth/reset-password", {
     pageTitle: "Reset Password",
     isLoggedIn: false,
@@ -36,29 +34,52 @@ exports.getResetPassword = (req, res, next) => {
 };
 
 exports.postResetPassword = [
-  check("password")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long")
-    .matches(/[a-z]/)
-    .withMessage("Password must contain at least one lowercase letter")
-    .matches(/[A-Z]/)
-    .withMessage("Password must contain at least one uppercase letter")
-    .matches(/[0-9]/)
-    .withMessage("Password must contain at least one number")
-    .matches(/[!@#$%^&*?><=+]/)
-    .withMessage("Password must contain at least one special character"),
-
-  check("confirm_password")
-  .custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error("Confirm Password does not match Password");
-    }
-    return true;
-  }),
-
+  passwordValidation,
+  confirmPasswordValidation,
+  
   async (req, res, next) => {
-  const { email, password, confirm_password } = req.body;
-}];
+    const { email, password, confirm_password } = req.body;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).render("auth/reset-password", {
+        pageTitle: "Reset Password",
+        isLoggedIn: false,
+        email: email,
+        errorMessages: errors.array().map((err) => err.msg),
+      });
+    }
+
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        throw new Error("User not found");
+      } else if (user.otpExpiry < Date.now()) {
+        throw new Error("OTP has expired");
+        
+      } else if (user.otp !== otp) {
+        throw new Error("OTP does not match");
+      } 
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+      user.password = hashedPassword;
+      user.otp = undefined;
+      user.otpExpiry = undefined;
+      await user.save();
+
+      res.redirect("/login");
+
+    } catch (err) {
+      res.render("auth/reset-password", {
+        pageTitle: "Reset Password",
+        isLoggedIn: false,
+        email: email,
+        errorMessages: [err.message],
+      });
+    }
+  },
+];
 
 exports.postForgotPassword = async (req, res, next) => {
   const { email } = req.body;
@@ -76,22 +97,20 @@ exports.postForgotPassword = async (req, res, next) => {
       subject: "Here is your OTP to reset your password",
       html: `<h1>OTP is: ${otp}</h1>
       <p>Enter this OTP on the reset password page</p>
-      `
+      `,
     };
 
     await sendGrid.send(forgotEmail);
 
-
     res.redirect(`/reset-password?email=${email}`);
-  }
-  catch (err) {
+  } catch (err) {
     res.render("auth/forgot", {
       pageTitle: "Forgot Password",
       isLoggedIn: false,
-      errorMessages: [err.message]
+      errorMessages: [err.message],
     });
   }
-}
+};
 
 exports.getSignup = (req, res, next) => {
   res.render("auth/signup", {
@@ -120,109 +139,71 @@ exports.postLogin = async (req, res, next) => {
     await req.session.save();
 
     res.redirect("/");
-
   } catch (err) {
     res.render("auth/login", {
       pageTitle: "Login",
       isLoggedIn: false,
-      errorMessages: [err.message]
+      errorMessages: [err.message],
     });
   }
 };
 
 exports.postSignup = [
-  check("firstName")
-    .notEmpty()
-    .withMessage("First name is mandatory")
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage("First name must be at least 2 characters long")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("First name can only contain letters and spaces"),
+  firstNameValidation,
+  lastNameValidation,
+  emailValidation,
+  passwordValidation,
+  confirmPasswordValidation,
+  userTypeValidation,
+  termsValidation,
+  
 
-  check("lastName")
-    .trim()
-    .matches(/^[a-zA-Z\s]*$/)
-    .withMessage("Last name can only contain letters and spaces"),
-
-  check("email").isEmail().withMessage("Please enter a valid email address"),
-
-  check("password")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long")
-    .matches(/[a-z]/)
-    .withMessage("Password must contain at least one lowercase letter")
-    .matches(/[A-Z]/)
-    .withMessage("Password must contain at least one uppercase letter")
-    .matches(/[0-9]/)
-    .withMessage("Password must contain at least one number")
-    .matches(/[!@#$%^&*?><=+]/)
-    .withMessage("Password must contain at least one special character"),
-
-  check("confirm_password")
-  .custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error("Confirm Password does not match Password");
-    }
-    return true;
-  }),
-
-  check("userType")
-    .notEmpty()
-    .withMessage("Please select a user type")
-    .isIn(["guest", "host"])
-    .withMessage("Please select either host or guest"),
-
-  check("terms")
-  .notEmpty()
-  .withMessage("Please agree to the terms"),
+  
 
   async (req, res, next) => {
-  console.log('User came for signup: ', req.body);
-  const errors = validationResult(req);
+    console.log("User came for signup: ", req.body);
+    const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(422).render('auth/signup',
-      {
-        pageTitle: 'Login',
+    if (!errors.isEmpty()) {
+      return res.status(422).render("auth/signup", {
+        pageTitle: "Login",
         isLoggedIn: false,
-        errorMessages: errors.array().map(err => err.msg),
+        errorMessages: errors.array().map((err) => err.msg),
         oldInput: req.body,
-      }
-    );
-  }
+      });
+    }
 
-  const { firstName, lastName, email, password, userType } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = new User({
-      firstName, lastName, email, password: hashedPassword, userType
-    });
-    await user.save();
+    const { firstName, lastName, email, password, userType } = req.body;
+    try {
+      const hashedPassword = await bcrypt.hash(password, 12);
+      const user = new User({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        userType,
+      });
+      await user.save();
 
-    const Greetings = {
-      to: email,
-      from: "praveenpranay07@gmail.com",
-      subject: "Welcome to Our Airbnb !!!",
-      html: `<h1> Welcome ${firstName} ${lastName} Greetings from Our Airbnb, Thanks for joining us.</h1`
-    };
+      const Greetings = {
+        to: email,
+        from: "praveenpranay07@gmail.com",
+        subject: "Welcome to Our Airbnb !!!",
+        html: `<h1> Welcome ${firstName} ${lastName} Greetings from Our Airbnb, Thanks for joining us.</h1`,
+      };
 
-    await sendGrid.send(Greetings);
+      await sendGrid.send(Greetings);
 
-
-
-    return res.redirect("/login");
-  } catch (err) {
-    return res.status(422).render('auth/signup',
-      {
-        pageTitle: 'Login',
+      return res.redirect("/login");
+    } catch (err) {
+      return res.status(422).render("auth/signup", {
+        pageTitle: "Login",
         isLoggedIn: false,
         errorMessages: [err.message],
         oldInput: req.body,
-      }
-    );
-  }
-}
+      });
+    }
+  },
 ];
 
 exports.postLogout = (req, res, next) => {
