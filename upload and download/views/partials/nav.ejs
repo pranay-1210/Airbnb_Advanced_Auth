@@ -1,0 +1,42 @@
+  <header class="bg-white shadow-md rounded-lg p-4">
+    <nav>
+      <div class="flex gap-4 flex-wrap">
+        <a href="/" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+           Airbnb
+        </a>
+        
+
+        <% if (isLoggedIn) { %>
+          <% if(user.userType === 'guest') { %>
+            <a href="/homes" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              homes
+            </a>
+            <a href="/favourites" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              favourites
+            </a>
+          <% } else { %>
+            <a href="/host/add-home" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              Add Home
+            </a>
+            <a href="/host/host-homes" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              Host homes
+            </a>
+            <% } %>
+          <% } %>
+
+        
+        <% if (isLoggedIn) { %>
+          <form action="/logout" method="POST" class="ml-auto">
+            <input type="submit" value="Logout" class=" px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all transform hover:scale-105 shadow-lg" />
+          </form>
+
+          <% } else { %>
+            <a href="/signup" class="ml-auto px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all transform hover:scale-105 shadow-lg">Signup</a>
+            <a href="/login" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">Login</a>
+          <% } %>
+
+      </div>
+
+
+    </nav>
+  </header>
