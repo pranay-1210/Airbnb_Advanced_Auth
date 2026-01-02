@@ -11,6 +11,10 @@ authRouter.post("/signup", authController.postSignup);
 authRouter.post("/logout", authController.postLogout);
 authRouter.get("/forgot-password", authController.getForgotPassword);
 authRouter.post("/forgot-password", authController.postForgotPassword);
+authRouter.get("/reset-password", authController.getResetPassword);
+authRouter.post("/reset-password", authController.postResetPassword);
+
+
 
 
 

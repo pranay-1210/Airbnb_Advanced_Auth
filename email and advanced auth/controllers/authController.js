@@ -26,6 +26,40 @@ exports.getForgotPassword = (req, res, next) => {
   });
 };
 
+exports.getResetPassword = (req, res, next) => {
+  const {email} = req.query;
+  res.render("auth/reset-password", {
+    pageTitle: "Reset Password",
+    isLoggedIn: false,
+    email: email,
+  });
+};
+
+exports.postResetPassword = [
+  check("password")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long")
+    .matches(/[a-z]/)
+    .withMessage("Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/)
+    .withMessage("Password must contain at least one uppercase letter")
+    .matches(/[0-9]/)
+    .withMessage("Password must contain at least one number")
+    .matches(/[!@#$%^&*?><=+]/)
+    .withMessage("Password must contain at least one special character"),
+
+  check("confirm_password")
+  .custom((value, { req }) => {
+    if (value !== req.body.password) {
+      throw new Error("Confirm Password does not match Password");
+    }
+    return true;
+  }),
+
+  async (req, res, next) => {
+  const { email, password, confirm_password } = req.body;
+}];
+
 exports.postForgotPassword = async (req, res, next) => {
   const { email } = req.body;
   console.log(email);
