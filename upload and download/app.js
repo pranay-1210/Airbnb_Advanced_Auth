@@ -9,6 +9,7 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 
 const MongoDBStore = require("connect-mongodb-session")(session);
+const multer = require("multer");
 
 const { hostRouter } = require("./routers/hostRouter");
 const { authRouter } = require("./routers/authRouter");
@@ -32,10 +33,11 @@ app.set("views", "views");
 
 app.use(express.static(path.join(rootDir, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(multer({ dest: 'uploads/'}).single('photo'));
 
 app.use(
   session({
-    secret: "my secret",
+    secret: "helloWorld",
     resave: false,
     saveUninitialized: true,
     store: sessionStore,

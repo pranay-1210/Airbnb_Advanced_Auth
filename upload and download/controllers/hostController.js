@@ -37,6 +37,8 @@ exports.getEditHome = (req, res) => {
 exports.postAddHome = (req, res, next) => {
   // console.log(req.body);
   const { houseName, price, location, rating, photoUrl, description } = req.body;
+  console.log('Request Body: ',req.body);
+  console.log('House Photo: ',req.file);
   const newHome = new Home({houseName, price, location, rating, photoUrl, description, host: req.session.user._id});
 
   newHome.save().then(() => {
