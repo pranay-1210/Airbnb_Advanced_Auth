@@ -44,7 +44,7 @@ exports.postAddHome = (req, res, next) => {
     return res.status(400).send('No valid image provided');  
   }
 
-  const photoUrl = req.file.path;
+  const photoUrl = "/" + req.file.path;
 
 
 
