@@ -1,4 +1,5 @@
 const Home = require("./../models/Home");
+const {deleteFile} = require("../util/file");
 
 exports.getAddHome = (req, res) => {
   res.render("host/edit-home", {
@@ -88,6 +89,7 @@ exports.postEditHome = (req, res, next) => {
       existingHome.location = location;
       existingHome.rating = rating;
       if (req.file) {
+        deleteFile(existingHome.photoUrl.substring(1));
         existingHome.photoUrl = "/" + req.file.path;
       }
       existingHome.description = description;
