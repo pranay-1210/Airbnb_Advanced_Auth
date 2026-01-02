@@ -1,3 +1,4 @@
+require("dotenv").config();
 
 const path = require("path");
 
@@ -46,11 +47,13 @@ app.use(storeRouter);
 
 
 app.use("/host", (req, res, next) => {
-  if (req.session.isLoggedIn) {
-    return next();
+  if (!req.session.isLoggedIn) {
+    return res.redirect("/login");
+
   }
-  return res.redirect("/login");
-});
+  next();
+  
+})
 
 app.use("/host", hostRouter);
 

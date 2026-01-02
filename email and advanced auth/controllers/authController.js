@@ -8,7 +8,7 @@ const bcrypt = require("bcryptjs");
 const sendGrid = require("@sendgrid/mail");
 
 
-sendGrid.setApiKey(process.env.SEND_GRID_KEY);
+sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
@@ -64,6 +64,8 @@ exports.postLogin = async (req, res, next) => {
     }
 
     req.session.isLoggedIn = true;
+    req.session.user = user;
+    await req.session.save();
 
     res.redirect("/");
 
@@ -146,14 +148,14 @@ exports.postSignup = [
     });
     await user.save();
 
-    const welcomeEmail = {
+    const Greetings = {
       to: email,
       from: "praveenpranay07@gmail.com",
       subject: "Welcome to Our Airbnb !!!",
-      html: `<h1> Welcome ${firstName} ${lastName} Please book your first vacation home with us.</h1`
+      html: `<h1> Welcome ${firstName} ${lastName} Greetings from Our Airbnb, Thanks for joining us.</h1`
     };
 
-    await sendGrid.send(welcomeEmail);
+    await sendGrid.send(Greetings);
 
 
 

@@ -7,19 +7,22 @@
         
 
         <% if (isLoggedIn) { %>
-          <a href="/homes" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
-          Homes
-          </a>
-          <a href="/favourites" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
-            favourites
-          </a>
-          <a href="/host/add-home" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
-            Add Home
-          </a>
-          <a href="/host/host-homes" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
-            Host Homes
-          </a>
-        <% } %>
+          <% if(user.userType === 'guest') { %>
+            <a href="/homes" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              homes
+            </a>
+            <a href="/favourites" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              favourites
+            </a>
+          <% } else { %>
+            <a href="/host/add-home" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              Add Home
+            </a>
+            <a href="/host/host-homes" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+              Host homes
+            </a>
+            <% } %>
+          <% } %>
 
         
         <% if (isLoggedIn) { %>
