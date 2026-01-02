@@ -28,12 +28,21 @@ const sessionStore = new MongoDBStore({
   collection: "sessions",
 });
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + '-' + file.originalname);
+  },
+}); 
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(express.static(path.join(rootDir, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(multer({ dest: 'uploads/'}).single('photo'));
+app.use(multer({storage}).single('photo'));
 
 app.use(
   session({
