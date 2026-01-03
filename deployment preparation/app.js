@@ -1,4 +1,8 @@
-require("dotenv").config();
+
+const ENV = process.env.NODE_ENV || 'production';
+require("dotenv").config({
+  path: `.env.${ENV}`
+});
 
 const path = require("path");
 
@@ -10,6 +14,7 @@ const session = require("express-session");
 
 const MongoDBStore = require("connect-mongodb-session")(session);
 const multer = require("multer");
+const helmet = require('helmet');
 
 const { hostRouter } = require("./routers/hostRouter");
 const { authRouter } = require("./routers/authRouter");
@@ -22,6 +27,7 @@ const MONGO_DB_URL =
   `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@airbnb.ngu7mqb.mongodb.net/${process.env.MONGO_DB_DATABASE}`;
 
 const app = express();
+app.use(helmet());
 
 const sessionStore = new MongoDBStore({
   uri: MONGO_DB_URL,

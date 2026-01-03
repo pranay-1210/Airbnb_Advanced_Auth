@@ -4,6 +4,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const sendGrid = require("@sendgrid/mail");
 const { firstNameValidation, lastNameValidation, emailValidation, passwordValidation, confirmPasswordValidation, termsValidation ,userTypeValidation} = require("./validation");
+const { validationResult } = require("express-validator");
 
 
 const MILLIS_IN_MINUTE = 60 * 1000;
