@@ -5,6 +5,7 @@ require("dotenv").config({
 });
 
 const path = require("path");
+const fs = require("fs");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -16,6 +17,7 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const multer = require("multer");
 const helmet = require('helmet');
 const compression = require('compression');
+const morgan = require('morgan');
 
 const { hostRouter } = require("./routers/hostRouter");
 const { authRouter } = require("./routers/authRouter");
@@ -24,12 +26,18 @@ const storeRouter = require("./routers/storeRouter");
 const rootDir = require("./util/path-util");
 const errorController = require("./controllers/errorController");
 
-const MONGO_DB_URL =
-  `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@airbnb.ngu7mqb.mongodb.net/${process.env.MONGO_DB_DATABASE}`;
+const MONGO_DB_URL =`mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@airbnb.ngu7mqb.mongodb.net/${process.env.MONGO_DB_DATABASE}`;
+
+
+const loggingPath = path.join(rootDir, 'access.log')
+const loggingStream = fs.createWriteStream(loggingPath,{flags:'a'});
+
+
 
 const app = express();
 app.use(helmet());
 app.use(compression());
+app.use(morgan('combined', {stream: loggingStream}));
 
 const sessionStore = new MongoDBStore({
   uri: MONGO_DB_URL,
