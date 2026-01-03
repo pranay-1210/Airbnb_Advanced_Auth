@@ -15,6 +15,7 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const multer = require("multer");
 const helmet = require('helmet');
+const compression = require('compression');
 
 const { hostRouter } = require("./routers/hostRouter");
 const { authRouter } = require("./routers/authRouter");
@@ -28,6 +29,7 @@ const MONGO_DB_URL =
 
 const app = express();
 app.use(helmet());
+app.use(compression());
 
 const sessionStore = new MongoDBStore({
   uri: MONGO_DB_URL,
